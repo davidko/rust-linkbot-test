@@ -1,0 +1,5 @@
+[package]
+name = "rlinkbot"
+version = "0.1.0"
+authors = [" <david.dk.ko@gmail.com>"]
+build = "build.rs"
