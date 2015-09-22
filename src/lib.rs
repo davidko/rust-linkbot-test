@@ -32,22 +32,20 @@ fn check_accelerometer() -> Result<(f64, f64, f64), u32> {
     Ok((x,y,z))
 }
 
-fn test_future() -> Result<(), u32> {
-    let mut l = try!(Linkbot::new("LOCL"));
-    let l_sync = Arc::new(Mutex::new(l));
-    let l = l_sync.clone();
-    let future = Future::spawn(move || {
-        let l = l_sync.clone();
-        let l2 = l.lock();
-        let l3 = l2.unwrap();
-        l3.get_accelerometer().unwrap()
-        //let mut l = l.lock().unwrap();
-        //l.get_accelerometer().unwrap()
-    });
-    let (x,y,z) = future.await().unwrap();
-    println!("future excel value: {} {} {}", x, y, z);
-    Ok(())
-}
+    fn test_future() -> Result<(), u32> {
+        let mut l = try!(Linkbot::new("LOCL"));
+        let l_sync = Arc::new(Mutex::new(l));
+        //let l = l_sync.clone();
+        let future = Future::spawn(move || {
+            let mylinkbot = l_sync.clone();
+            let mylinkbot = mylinkbot.lock();
+            let mylinkbot = mylinkbot.unwrap();
+            mylinkbot.get_accelerometer().unwrap()
+        });
+        let (x,y,z) = future.await().unwrap();
+        println!("future excel value: {} {} {}", x, y, z);
+        Ok(())
+    }
 
 pub struct Linkbot {
     linkbot_impl : *mut u8,
@@ -97,6 +95,19 @@ impl Linkbot {
                 e @ _ => Err(e)
             }
         }
+    }
+
+    fn get_accelerometer_async(&self) -> Future<(f64, f64, f64), ()> {
+        let l_sync = Arc::new(Mutex::new(self));
+        return Future::spawn(move || {
+            let l = l_sync.clone();
+            l;
+            /*
+            let l = l.unwrap();
+            return l.get_accelerometer().unwrap();
+            */
+            return (0.0, 0.0, 0.0);
+        });
     }
 }
 
